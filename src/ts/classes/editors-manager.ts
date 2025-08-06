@@ -1,43 +1,26 @@
-import {checkNonUndefined} from '/jslib/js/preconditions.js';
-import {Editor} from './editor.js';
-import {Logger} from '../logger.js';
+import {Editor} from './editor';
+import {Logger} from '../logger';
 import {languages} from '@codemirror/language-data';
 
 /** EditorsManager class */
 export class EditorsManager {
-  /**
-   * @type {Editor[]}
-   */
-  static #editors = [];
+  static #editors: Editor[] = [];
+  static #activeEditor: Editor|undefined;
+  static #darkMode: boolean = false;
 
-  /** @type {Editor|undefined} */
-  static #activeEditor;
-
-  /** @type {boolean} */
-  static #darkMode = false;
-
-  /**
-   * @return {Promise<any>}
-   */
-  static initializeLanguages() {
+  static initializeLanguages(): Promise<any> {
     console.log('Downloading languages support');
     return Promise.all(languages.map((lang) => lang.load()));
   }
 
-  /**
-   * @param {boolean} dark
-   */
-  static setMode(dark) {
+  static setMode(dark: boolean) {
     EditorsManager.#darkMode = dark;
   }
 
   /**
    * This method will activate editor[index].
-   *
-   * @param {number} index
-   * @return {Promise<any>}
    */
-  static activateEditor(index) {
+  static activateEditor(index: number): Promise<any> {
     return Promise.resolve()
         .then(() => EditorsManager.#activateEditor(EditorsManager.#editors[index]))
         .catch((error) => Logger.error(`Could not activate editor: ${error.message}`, error));
@@ -46,19 +29,13 @@ export class EditorsManager {
   /**
    * This method will create a new editor. If the file handler is not
    * provided new editor for an empty file will be created.
-   *
-   * @param {FileSystemFileHandle|undefined} fileHandler
-   * @return {Promise<any>}
    */
-  static createEditor(fileHandler = undefined) {
+  static createEditor(fileHandler: FileSystemFileHandle|undefined = undefined): Promise<any> {
     return EditorsManager.#createEditor(fileHandler)
-        .catch((error) => Logger.error(`Could not open file: ${error.message}`, error));
+        .catch((error: Error) => Logger.error(`Could not open file: ${error.message}`, error));
   }
 
-  /**
-   * @return {Promise<any>}
-   */
-  static saveActiveEditor() {
+  static saveActiveEditor(): Promise<any> {
     if (EditorsManager.#activeEditor) {
       return EditorsManager.#activeEditor.save()
           .then(() => Logger.info(`File ${EditorsManager.#activeEditor?.getTitle()} saved.`))
@@ -69,10 +46,7 @@ export class EditorsManager {
     }
   }
 
-  /**
-   * @return {Promise<any>}
-   */
-  static saveAsActiveEditor() {
+  static saveAsActiveEditor(): Promise<any> {
     if (EditorsManager.#activeEditor) {
       return EditorsManager.#activeEditor.saveAs()
           .then(() => Logger.info(`File ${EditorsManager.#activeEditor?.getTitle()} saved.`))
@@ -83,10 +57,7 @@ export class EditorsManager {
     }
   }
 
-  /**
-   * @return {Promise<any>}
-   */
-  static closeActiveEditor() {
+  static closeActiveEditor(): Promise<any> {
     if (EditorsManager.#activeEditor) {
       return EditorsManager.#closeEditor(EditorsManager.#activeEditor);
     } else {
@@ -95,10 +66,7 @@ export class EditorsManager {
     }
   }
 
-  /**
-   * @return {Promise<any>}
-   */
-  static saveAllEditors() {
+  static saveAllEditors(): Promise<any> {
     // Save files one by one.
     let saveAllPromise = Promise.resolve();
     for (const editor of EditorsManager.#editors) {
@@ -113,29 +81,19 @@ export class EditorsManager {
    * Will try to find if the file is already opened by comparing
    * metadata and file name (but not full path!) and will return
    * index of editor if the file is already opened.
-   *
-   * @param {FileSystemFileHandle} fileHandler
-   * @return {Promise<number>}
    */
-  static getFileIndex(fileHandler) {
+  static getFileIndex(fileHandler: FileSystemFileHandle): Promise<number> {
     return fileHandler.getFile()
         .then((file) => EditorsManager.#editors.map((editor) => editor.isOpenedForFile(file)))
         .then((isOpenedForFilePromise) => Promise.all(isOpenedForFilePromise))
         .then((values) => values.findIndex((v) => v === true));
   }
 
-  /**
-   * @return {boolean}
-   */
-  static isAnyEditorUnsaved() {
+  static isAnyEditorUnsaved(): boolean {
     return EditorsManager.#editors.map((editor) => editor.isUnsaved()).some((val) => val);
   }
 
-  /**
-   * @param {FileSystemFileHandle|undefined} fileHandler
-   * @return {Promise<any>}
-   */
-  static #createEditor(fileHandler) {
+  static #createEditor(fileHandler: FileSystemFileHandle|undefined): Promise<any> {
     if (fileHandler) {
       for (const openedEditor of EditorsManager.#editors) {
         if (openedEditor.hasFileHandler(fileHandler)) {
@@ -148,10 +106,10 @@ export class EditorsManager {
 
     EditorsManager.#editors.push(editor);
 
-    checkNonUndefined(document.getElementById('editors-tabs')).appendChild(editor.getTabEl());
-    checkNonUndefined(document.getElementById('editors-content')).appendChild(editor.getEditorEl());
+    (document.getElementById('editors-tabs') as HTMLDivElement).appendChild(editor.getTabEl());
+    (document.getElementById('editors-content') as HTMLDivElement).appendChild(editor.getEditorEl());
 
-    editor.setActivateCallback((event) => EditorsManager.#activateEditor(editor));
+    editor.setActivateCallback(() => EditorsManager.#activateEditor(editor));
     editor.setCloseCallback(() => EditorsManager.#closeEditor(editor));
 
     return editor.initialize()
@@ -160,10 +118,8 @@ export class EditorsManager {
 
   /**
    * Will activate given editor or deactivate when undefined
-   *
-   * @param {Editor|undefined} editor
    */
-  static #activateEditor(editor) {
+  static #activateEditor(editor: Editor|undefined) {
     if (EditorsManager.#activeEditor) {
       EditorsManager.#activeEditor.hide();
     }
@@ -173,13 +129,8 @@ export class EditorsManager {
     }
   }
 
-  /**
-   * @param {Editor} editor
-   * @return {Promise<any>}
-   */
-  static #closeEditor(editor) {
-    /** @type {Promise<any>} */
-    let resultPromise = Promise.resolve();
+  static #closeEditor(editor: Editor): Promise<any> {
+    let resultPromise: Promise<any> = Promise.resolve();
     const editorIdx = EditorsManager.#editors.indexOf(editor);
     if (editorIdx === -1) {
       console.error(`Couldn't find editor ${editor} in the editors list.`);

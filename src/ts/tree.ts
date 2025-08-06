@@ -1,17 +1,11 @@
-import {checkNonUndefined} from '/jslib/js/preconditions.js';
-import {EditorsManager} from './classes/editors-manager.js';
+import { EditorsManager } from './classes/editors-manager';
+import { DirectoryWithHandles } from './file-manipulations';
 
-/**
- * @typedef {import("./file-manipulations.js").DirectoryWithHandles} DirectoryWithHandles
- */
 
 const MARGIN = 12;
 
-/**
- * @param {DirectoryWithHandles} directory
- */
-export function generateTree(directory) {
-  const treeEl = checkNonUndefined(document.getElementById('tree'));
+export function generateTree(directory: DirectoryWithHandles) {
+  const treeEl = document.getElementById('tree') as HTMLDivElement;
   const closeEl = document.createElement('button');
   closeEl.id = 'tree-close-btn';
   closeEl.innerHTML = '&times;';
@@ -23,12 +17,7 @@ export function generateTree(directory) {
   treeEl.replaceChildren(...treeEls);
 }
 
-/**
- * @param {DirectoryWithHandles} directory
- * @param {number} level
- * @return {HTMLElement[]}
- */
-function renderTree(directory, level) {
+function renderTree(directory: DirectoryWithHandles, level: number): HTMLElement[] {
   const result = [];
   const dirEl = document.createElement('div');
   dirEl.textContent = `[${directory.handle.name}]`;

@@ -1,18 +1,13 @@
-import {combine2} from '/jslib/js/promise.js';
+import { combine } from "./lib/promise";
 
-/**
- * @typedef {Object} DirectoryWithHandles
- *
- * @property {FileSystemDirectoryHandle} handle
- * @property {DirectoryWithHandles[]} directories
- * @property {FileSystemFileHandle[]} files
- *
- */
+export interface DirectoryWithHandles {
+  handle: FileSystemDirectoryHandle;
+  directories: DirectoryWithHandles[];
+  files: FileSystemFileHandle[];
+}
 
-/**
- * @return {boolean}
- */
-export function supportsFileSystemAccess() {
+
+export function supportsFileSystemAccess(): boolean {
   if (window.hasOwnProperty('showOpenFilePicker') &&
         window.hasOwnProperty('showSaveFilePicker') &&
         window.hasOwnProperty('showDirectoryPicker')) {
@@ -28,26 +23,16 @@ export function supportsFileSystemAccess() {
   }
 }
 
-/**
- * @return {Promise<FileSystemFileHandle[]>}
- */
-export function openFilePicker() {
+export function openFilePicker():Promise<FileSystemFileHandle[]> {
   return window.showOpenFilePicker({multiple: true});
 }
 
-/**
- * @return {Promise<DirectoryWithHandles>}
- */
-export function openDirectoryPicker() {
+export function openDirectoryPicker():Promise<DirectoryWithHandles> {
   return window.showDirectoryPicker()
       .then((dirHandle) => listDirectory(dirHandle));
 }
 
-/**
- * @param {FileSystemDirectoryHandle} handle
- * @return {Promise<DirectoryWithHandles>}
- */
-function listDirectory(handle) {
+function listDirectory(handle: FileSystemDirectoryHandle):Promise<DirectoryWithHandles> {
   // List directory and split files and directories.
   const filesAndDirectoriesPromise = fromAsync(handle.values())
       .then((values) => {
@@ -72,58 +57,35 @@ function listDirectory(handle) {
         return {files, directories};
       });
 
-  /** @type {Promise<FileSystemFileHandle[]>} */
-  const filesPromise = filesAndDirectoriesPromise.then((p) => p.files);
+  const filesPromise:Promise<FileSystemFileHandle[]> = filesAndDirectoriesPromise.then((p) => p.files);
 
-  /** @type {Promise<DirectoryWithHandles[]>} */
-  const directoriesPromise = filesAndDirectoriesPromise.then((p) => p.directories)
+  const directoriesPromise: Promise<DirectoryWithHandles[]> = filesAndDirectoriesPromise.then((p) => p.directories)
       .then((directories) => Promise.all(directories.map((dir) => listDirectory(dir))));
 
-  return combine2(filesPromise, directoriesPromise,
-      (files, directories) => ({handle, files, directories}));
+  return combine(filesPromise, directoriesPromise,
+      (files:FileSystemFileHandle[], directories: DirectoryWithHandles[]) => ({handle, files, directories}));
 }
 
-/**
- * @template K
- *
- * @param {AsyncIterator<K>} asyncIterator
- * @return {Promise<K[]>}
- */
-function fromAsync(asyncIterator) {
+function fromAsync<K>(asyncIterator: AsyncIterator<K>): Promise<K[]> {
   // @ts-ignore
   return Array.fromAsync(asyncIterator);
 }
 
-/**
- * @param {FileSystemFileHandle} fileHandle
- * @param {string} contents
- * @return {Promise<FileSystemFileHandle>}
- */
-export function saveFile(fileHandle, contents) {
+export function saveFile(fileHandle: FileSystemFileHandle, contents: string):Promise<FileSystemFileHandle> {
   return fileHandle.createWritable()
       .then((writable) => writable.write(contents).then(() => writable.close()))
       .then(() => fileHandle);
 }
 
-/**
- * @param {string} fileName
- * @param {string} contents
- * @return {Promise<FileSystemFileHandle>}
- */
-export function saveFileAs(fileName, contents) {
+export function saveFileAs(fileName: string, contents: string):Promise<FileSystemFileHandle> {
   return window.showSaveFilePicker({suggestedName: fileName})
       .then((fileHandle) => saveFile(fileHandle, contents));
 }
 
 /**
  * Will compare files using its metadata and if the files are the same.
- *
- *
- * @param {File} file1
- * @param {File} file2
- * @return {Promise<boolean>}
  */
-export function compareFiles(file1, file2) {
+export function compareFiles(file1: File, file2: File):Promise<boolean> {
   const metadataEquals =
     (file1.lastModified === file2.lastModified &&
   file1.name === file2.name &&
@@ -136,12 +98,7 @@ export function compareFiles(file1, file2) {
   }
 }
 
-/**
- * @param {File} file1
- * @param {File} file2
- * @return {Promise<boolean>}
- */
-function compareContent(file1, file2) {
+function compareContent(file1: File, file2: File): Promise<boolean> {
   console.log('Comparing content of files', file1, file2);
-  return combine2(file1.text(), file2.text(), (a1, a2) => a1 === a2);
+  return combine(file1.text(), file2.text(), (a1: string, a2: string) => a1 === a2);
 }

@@ -1,44 +1,30 @@
-import {compareFiles, saveFile, saveFileAs} from '../file-manipulations.js';
+import {compareFiles, saveFile, saveFileAs} from '../file-manipulations';
 // codemirror is installed locally. In order to work on the webpage, the module
 // is mapped in the importmap.
 import {basicSetup, EditorView} from 'codemirror';
 import {keymap} from '@codemirror/view';
-import {combine2} from '/jslib/js/promise.js';
 import {oneDark} from '@codemirror/theme-one-dark';
 import {languages} from '@codemirror/language-data';
 import {indentWithTab} from '@codemirror/commands';
+import { combine } from '../lib/promise';
 
 /** Editor class */
 export class Editor {
   static #newFileCount = 1;
 
-  /** @type {FileSystemFileHandle|undefined} */
-  #fileHandler;
+  #fileHandler: FileSystemFileHandle|undefined;
+  #editorTabHtml: EditorTabHtml;
+  #editorHtml: EditorHtml;
+  #isUnsaved : boolean;
 
-  /** @type {EditorTabHtml} */
-  #editorTabHtml;
-
-  /** @type {EditorHtml} */
-  #editorHtml;
-
-  /** @type {boolean} */
-  #isUnsaved;
-
-  /**
-   * @param {boolean} darkMode
-   * @param {FileSystemFileHandle|undefined} fileHandler
-   */
-  constructor(darkMode, fileHandler) {
+  constructor(darkMode: boolean, fileHandler: FileSystemFileHandle|undefined) {
     this.#fileHandler = fileHandler;
     this.#editorTabHtml = new EditorTabHtml();
     this.#editorHtml = new EditorHtml(darkMode, () => this.#setIsUnsaved(true));
     this.#isUnsaved = false;
   }
 
-  /**
-   * @return {Promise<any>}
-   */
-  initialize() {
+  initialize() : Promise<any> {
     const filePromise = this.#fileHandler === undefined ?
       Promise.resolve({
         name: `Untitled-${Editor.#newFileCount++}`,
@@ -47,7 +33,7 @@ export class Editor {
       this.#fileHandler.getFile();
     const textPromise = filePromise.then((file) => file.text());
 
-    return combine2(filePromise, textPromise, (file, text) => {
+    return combine(filePromise, textPromise, (file, text) => {
       this.#editorTabHtml.setTitle(file.name);
       return this.#editorHtml.initialize(file.name, text);
     });
@@ -56,11 +42,8 @@ export class Editor {
   /**
    * Will return true if this editor is opened for a given file
    * by comparing data on the disk.
-   *
-   * @param {File} file
-   * @return {Promise<boolean>}
    */
-  isOpenedForFile(file) {
+  isOpenedForFile(file: File): Promise<boolean> {
     if (this.#fileHandler === undefined) {
       // Then fileHandler is not defined, the editor is opened for a new file.
       return Promise.resolve(false);
@@ -72,18 +55,12 @@ export class Editor {
   /**
    * Will return true if this editor is opened for a given file
    * by comparing file handler references.
-   *
-   * @param {FileSystemFileHandle} handler
-   * @return {boolean}
    */
-  hasFileHandler(handler) {
+  hasFileHandler(handler: FileSystemFileHandle): boolean {
     return this.#fileHandler === handler;
   }
 
-  /**
-   * @return {Promise<any>}
-   */
-  save() {
+  save() :Promise<any> {
     if (this.#fileHandler === undefined) {
       return this.saveAs();
     } else {
@@ -92,10 +69,7 @@ export class Editor {
     }
   }
 
-  /**
-   * @return {Promise<any>}
-   */
-  saveAs() {
+  saveAs() :Promise<any> {
     return saveFileAs(this.#editorTabHtml.getTitle(), this.#editorHtml.getContent())
         .then((handle) => this.#fileHandler = handle)
         .then(() => this.initialize())
@@ -128,71 +102,44 @@ export class Editor {
     this.#fileHandler = undefined;
   }
 
-  /**
-   * @return {string}
-   */
-  getTitle() {
+  getTitle() :string{
     return this.#editorTabHtml.getTitle();
   }
 
-  /**
-   * @return {HTMLElement}
-   */
-  getTabEl() {
+  getTabEl() :HTMLElement {
     return this.#editorTabHtml.getEl();
   }
 
-  /**
-   * @return {HTMLElement}
-   */
-  getEditorEl() {
+  getEditorEl() : HTMLElement {
     return this.#editorHtml.getEl();
   }
 
-  /**
-   * @return {boolean}
-   */
-  isUnsaved() {
+  isUnsaved() : boolean {
     return this.#isUnsaved;
   }
 
-  /**
-   * @param {boolean} isUnsaved
-   */
-  #setIsUnsaved(isUnsaved) {
+  #setIsUnsaved(isUnsaved: boolean) {
     this.#isUnsaved = isUnsaved;
     this.#editorTabHtml.setUnsavedIndicator(isUnsaved);
   }
 
-  /**
-   * Sets function that will activate this tab when called.
-   *
-   * @param {function():any} callback
-   */
-  setActivateCallback(callback) {
+  setActivateCallback(callback: () => any) {
     this.#editorTabHtml.setActivateCallback(callback);
   }
 
   /**
    * Sets function that will close this tab when called.
-   *
-   * @param {function():any} callback
    */
-  setCloseCallback(callback) {
+  setCloseCallback(callback : () => any) {
     this.#editorTabHtml.setCloseCallback(callback);
   }
 }
 
 /** EditorTabHtml class */
 class EditorTabHtml {
-  /** @type {HTMLButtonElement} */
-  #mainEl;
-
-  /** @type {HTMLElement} */
-  #captionEl;
-
-  /** @type {HTMLButtonElement} */
-  #closeEl;
+  #mainEl: HTMLButtonElement;
+  #captionEl: HTMLElement;
+  #closeEl: HTMLButtonElement;
 
   /**
    * Creates new inactive Tab
@@ -217,29 +164,22 @@ class EditorTabHtml {
     this.markActive(false);
   }
 
-  /**
-   * @return {HTMLButtonElement}
-   */
-  getEl() {
+  getEl(): HTMLButtonElement {
     return this.#mainEl;
   }
 
   /**
    * Sets function that will activate this tab when called.
-   *
-   * @param {function():any} callback
    */
-  setActivateCallback(callback) {
+  setActivateCallback(callback: () => any) {
     // Left click should activate tab
     this.#mainEl.onclick = callback;
   }
 
   /**
    * Sets function that will close this tab when called.
-   *
-   * @param {function():any} callback
    */
-  setCloseCallback(callback) {
+  setCloseCallback(callback: () => any) {
     // Close click should close the tab and not propagate any further.
     this.#closeEl.onclick = (event) => {
       callback(); event.stopPropagation();
@@ -253,24 +193,15 @@ class EditorTabHtml {
     };
   }
 
-  /**
-   * @return {string}
-   */
-  getTitle() {
+  getTitle() : string {
     return this.#captionEl.textContent || '';
   }
 
-  /**
-   * @param {string} title
-   */
-  setTitle(title) {
+  setTitle(title: string) {
     this.#captionEl.textContent = title;
   }
 
-  /**
-   * @param {boolean} isUnsaved
-   */
-  setUnsavedIndicator(isUnsaved) {
+  setUnsavedIndicator(isUnsaved: boolean) {
     if (isUnsaved) {
       this.#mainEl.classList.add('editor-btn-unsaved');
     } else {
@@ -280,10 +211,8 @@ class EditorTabHtml {
 
   /**
    * Mark button as active or inactive.
-   *
-   * @param {boolean} active
    */
-  markActive(active) {
+  markActive(active: boolean) {
     if (active) {
       this.#mainEl.classList.add('editor-btn-active');
     } else {
@@ -303,25 +232,15 @@ class EditorTabHtml {
 
 /** EditorHtml class */
 class EditorHtml {
-  /** @type {HTMLElement} */
-  #mainEl;
-
-  /** @type {EditorView} */
-  #editorView;
-
-  /** @type {boolean} */
-  #darkMode;
-
-  /** @type{function():any} */
-  #docChangedCallback;
+  #mainEl : HTMLElement;
+  #editorView: EditorView|undefined;
+  #darkMode : boolean;
+  #docChangedCallback : () => any;
 
   /**
    * Creates new empty and hidden Html Editor.
-   *
-   * @param {boolean} darkMode
-   * @param {function():any} docChangedCallback
    */
-  constructor(darkMode, docChangedCallback) {
+  constructor(darkMode: boolean, docChangedCallback: () => any) {
     this.#mainEl = document.createElement('div');
     this.#mainEl.classList.add('editor');
     this.#darkMode = darkMode;
@@ -329,12 +248,7 @@ class EditorHtml {
     this.hide();
   }
 
-  /**
-   * @param {string} filename
-   * @param {string} content
-   * @return {Promise<any>}
-   */
-  initialize(filename, content) {
+  initialize(filename: string, content: string): Promise<any> {
     this.#mainEl.innerHTML = '';
     if (this.#editorView) {
       this.#editorView.destroy();
@@ -372,40 +286,28 @@ class EditorHtml {
     );
   }
 
-  /**
-   * @return {HTMLElement}
-   */
-  getEl() {
+  getEl() : HTMLElement{
     return this.#mainEl;
   }
 
-  /**
-   * Show editor.
-   */
   show() {
     this.#mainEl.classList.add('editor-active');
-    this.#editorView.focus();
+    this.#editorView!.focus();
   }
 
-  /**
-   * Hide editor.
-   */
   hide() {
     this.#mainEl.classList.remove('editor-active');
   }
 
-  /**
-   * @return {string}
-   */
-  getContent() {
-    return this.#editorView.state.doc.toString();
+  getContent(): string {
+    return this.#editorView!.state.doc.toString();
   }
 
   /**
    * Destroy the view and detach from DOM.
    */
   close() {
-    this.#editorView.destroy();
+    this.#editorView!.destroy();
     this.#mainEl.remove();
   }
 }
