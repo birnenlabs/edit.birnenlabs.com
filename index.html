@@ -1,19 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <!-- Disallow connections to external services. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+  <!-- Disallow connections to external services. -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="/icon-512x512.png">
-    <title>Editor</title>
-    <script type="module" src="/src/main.ts"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/icon-512x512.png">
+  <title>Text Editor</title>
+  <script type="module" src="/src/main.ts"></script>
 </head>
+
 <body>
+  <div id='main'>
 
-    <h1>Hello, TypeScript Web App!</h1>
-
-    
+    <div id='menu'>
+      <!--
+        Free icons from: https://iconduck.com/sets/codicons
+        App icon: https://iconduck.com/icons/160562/accessories-text-editor-symbolic 
+      -->
+      <button type='button' id='menuBtnNew' title='New File (ctrl+n)'>
+        <img src='/file.svg' />
+      </button>
+      <button type='button' id='menuBtnOpen' title='Open File (ctrl+o)'>
+        <img src='/folder-opened.svg' />
+      </button>
+      <button type='button' id='menuBtnOpenDir' title='Open Directory (ctrl+shift+o)'>
+        <img src='/new-folder.svg' />
+      </button>
+      <button type='button' id='menuBtnSave' title='Save (ctrl+s)'>
+        <img src='/save.svg' />
+      </button>
+      <button type='button' id='menuBtnSaveAs' title='Save As (ctrl+alt+s)'>
+        <img src='/save-as.svg' />
+      </button>
+      <button type='button' id='menuBtnSaveAll' title='Save All (ctrl+shift+s)'>
+        <img src='/save-all.svg' />
+      </button>
+    </div>
+    <div id='content'>
+      <div id='tree'></div>
+      <div id='editor'>
+        <div id='editors-tabs'></div>
+        <div id='editors-content'></div>
+      </div>
+    </div>
+    <div id='bottom-bar'></div>
+  </div>
 </body>
+
 </html>
