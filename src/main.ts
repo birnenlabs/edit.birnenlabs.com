@@ -34,5 +34,5 @@ window.addEventListener('beforeunload', closeEvent);
 // Detecting dark/light mode changes.
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', darkModeChanged);
 // Supporting "open with" requests.
-// @ts-ignore
+// @ts-expect-error Property 'launchQueue' does not exist on type 'Window'.
 window['launchQueue'].setConsumer(launchQueueEvent);
