@@ -1,0 +1,20 @@
+{
+  "name": "edit.birnenlabs.com",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "update": "npx npm-check-updates"
+  },
+  "devDependencies": {
+    "npm-check-updates": "^18.0.2",
+    "typescript": "^5.9.2",
+    "vite": "^7.0.6",
+    "vite-plugin-pwa": "^1.0.2"
+  },
+  "dependencies": {
+    "mathjs": "^14.6.0"
+  }
+}
