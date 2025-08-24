@@ -1,0 +1,308 @@
+:root {
+    color-scheme: dark light;
+  
+    --color-background: light-dark(#f8f8f8, #333);
+    --color-background-active: light-dark(white, #444);
+    --color-border: light-dark(#e5e5e5, #666);
+  
+    --color-tab-active: light-dark(blue, red);
+  
+    --color-font: light-dark(#888, #888);
+    --color-font-active: light-dark(black, white);
+  }
+  
+  body, html {
+    background-color: var(--color-background);
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  
+  /* Define all layouts here */
+  #main {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  
+    #menu {
+    }
+  
+    #content {
+      flex-grow: 1;
+      min-height: 0;
+      
+      display: flex;
+      flex-direction: row;
+  
+      #tree {
+        flex-shrink: 0;
+        margin: 5px 0 5px 5px;
+        max-width: 25%;
+        overflow-x: hidden;
+        overflow-y: scroll;
+      }
+  
+      #editor {
+        flex-grow: 1;
+        
+        display: flex;
+        flex-direction: column;
+        min-width: 10px;
+  
+        #editor-tabs {
+        }
+  
+        #editors-content {
+          flex-grow: 1;
+          margin: 0 5px 5px 5px;
+          /* By default flex cannot be smaller than its content - let's make it possible. */
+          min-height: 100px;
+        }
+      }
+    }
+  
+    #bottom-bar {
+      margin: 5px;
+      margin-top: 0;
+      min-height: 1.2em;
+    }
+  }
+  
+  #menu {
+    button {
+      background-color: inherit;
+      border: none;
+      cursor: pointer;
+      filter: opacity(60%);
+      padding: 8px;
+      
+      img {
+        display: block;
+        height: 20px;
+      }
+  
+      @media (prefers-color-scheme: dark) {
+        img {
+          filter: invert(1);
+        }
+      }
+    }
+  
+    button:hover {
+      filter: opacity(100%);
+    }
+  
+    button:active {
+      background-color: var(--color-background-active);
+      border-radius: 8px;
+    }
+  }
+  
+  #editors-tabs {
+    /* This is for this element position in parent flex - the tabs should be aligned to left */
+    align-self: flex-start;
+    
+    border-left: 1px solid var(--color-border);
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0 5px;
+    user-select: none;
+  
+    .editor-btn:hover {
+      background-color: var(--color-background-active);
+    }
+   
+    .editor-btn {
+      border: none;
+      background-color: var(--color-background);
+      border-right: 1px solid var(--color-border);
+      border-top: 1px solid var(--color-border);
+      color: var(--color-font);
+      cursor: pointer;
+      flex-grow: 1;
+  
+      /* css for children */
+      align-items: baseline;
+      display: flex;
+      padding: 8px 5px 4px 8px;
+      
+  
+      .editor-btn-caption {
+        flex-grow: 1;
+      }
+      
+      .editor-btn-close {
+        border: none;
+        background-color: inherit;
+        color: inherit;
+        font-family: Garamond;
+        margin-left: 3px;
+        padding: 0 3px;
+      }
+  
+      .editor-btn-close:hover {
+        background-color: var(--color-background);
+        border-radius: 8px;
+      }
+    }
+    
+    .editor-btn-active {
+      background-color: var(--color-background-active);
+      border-top: 1px solid var(--color-tab-active);
+      color: var(--color-font-active);
+    }
+  
+    .editor-btn-unsaved {
+      .editor-btn-caption:after {
+        content: '*';
+      }
+    }
+  }
+  
+  #editors-content {
+   
+    .editor {
+      background-color: var(--color-background-active);
+      display: none;
+      height: 100%;
+    }
+    .editor-active {
+      display: block;
+    }
+  
+    /* CodeMirror classes */
+    .cm-editor {
+      border: 1px solid var(--color-border);
+      height: 100%;
+    }
+  
+    .cm-focused {
+      outline: unset;
+    }
+  
+    @media (prefers-color-scheme: dark) {
+      .cm-gutters {
+        filter: invert(0.8);
+      }
+    }
+  }
+  
+  #tree {
+    font-family: sans-serif;
+    user-select: none;
+  
+    #tree-close-btn {
+      border: none;
+      background-color: inherit;
+      color: inherit;
+      cursor: pointer;
+      float: right;
+      font-family: Garamond;
+      font-size: larger;    
+      filter: opacity(60%);
+    }
+  
+    #tree-close-btn:hover {
+      filter: opacity(100%);
+    }
+  
+    .tree-directory, .tree-file {
+      display: inline-block;
+      clear: left;
+      filter: opacity(60%);
+      float: left;
+      font-size: small;
+      /* max-width is set programatically as we have to subtract dynamic margin. */
+      overflow: hidden;
+      padding: 2px 5px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .tree-directory {
+      cursor: default;
+      font-weight: bold;
+    }
+  
+    .tree-directory:first-of-type {
+      margin-top: 5px;
+    }
+  
+    .tree-file {
+      border: none;
+      background-color: inherit;
+      cursor: pointer;
+    }
+  
+    .tree-file:hover {
+      filter: opacity(100%);
+    }
+  
+    .tree-file:active {
+      background-color: var(--color-background-active);
+      border-radius: 8px;
+    }
+  }
+  
+  #bottom-bar {
+    cursor: default;
+    display: flex;
+    flex-direction: row-reverse;
+    font-family: sans-serif;
+    font-size: small;
+    justify-content: flex-end;
+    user-select: none;
+  
+    .bottom-bar-message {
+      flex-shrink: 100;
+      /* set min-width to 0 to allow shriking. */
+      min-width: 0;
+      padding-right: 5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  
+    /* Flex is reversed - last child is displayed first. */
+    .bottom-bar-message:nth-last-child(1) {
+      flex-shrink: 1;
+    }
+  
+    .bottom-bar-message:nth-last-child(2) {
+      flex-shrink: 10;
+    }
+  
+    .bottom-bar-message:nth-last-child(3) {
+      flex-shrink: 20;
+    }
+  
+    .bottom-bar-message:nth-last-child(4) {
+      flex-shrink: 30;
+    }
+  
+    .bottom-bar-message:nth-last-child(5) {
+      flex-shrink: 40;
+    }
+  
+    .bottom-bar-message:nth-child(1) {
+      padding-right: 0;
+    }
+  
+    .bottom-bar-message-0 {
+      color: #f55;
+    }
+  
+    .bottom-bar-message-1 {
+      color: orange;    
+    }
+  
+    .bottom-bar-message-2 {
+      color: var(--color-font);
+    }
+  }
