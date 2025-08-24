@@ -278,6 +278,7 @@ class EditorHtml {
               this.#docChangedCallback();
             }
           }),
+          EditorView.lineWrapping,
           ...language ? [language] : [],
           ...this.#darkMode ? [oneDark] : [],
           keymap.of([indentWithTab]),
