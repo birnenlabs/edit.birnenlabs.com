@@ -1,4 +1,5 @@
 import './style/main.css'
+import '@vscode/codicons/dist/codicon.css';
 import {Logger} from './ts/logger';
 import {supportsFileSystemAccess} from './ts/file-manipulations';
 import {newFileClick, openFileClick, openDirClick, saveFileClick, saveFileAsClick, saveAllClick, keyDown, darkModeChanged, launchQueueEvent, closeEvent} from './ts/html';

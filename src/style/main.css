@@ -81,13 +81,12 @@
       filter: opacity(60%);
       padding: 8px;
       
-      img {
-        display: block;
-        height: 20px;
+      .codicon {
+        font-size: 22px;
       }
   
       @media (prefers-color-scheme: dark) {
-        img {
+        .codicon {
           filter: invert(1);
         }
       }
