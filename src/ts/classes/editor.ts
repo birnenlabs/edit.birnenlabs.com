@@ -7,6 +7,7 @@ import {oneDark} from '@codemirror/theme-one-dark';
 import {languages} from '@codemirror/language-data';
 import {indentWithTab} from '@codemirror/commands';
 import { combine } from '../lib/promise';
+import { Settings } from './settings';
 
 /** Editor class */
 export class Editor {
@@ -249,6 +250,8 @@ class EditorHtml {
   }
 
   initialize(filename: string, content: string): Promise<any> {
+    const settings = new Settings();
+
     this.#mainEl.innerHTML = '';
     if (this.#editorView) {
       this.#editorView.destroy();
@@ -278,7 +281,7 @@ class EditorHtml {
               this.#docChangedCallback();
             }
           }),
-          EditorView.lineWrapping,
+          ...settings.wrapLines ? [EditorView.lineWrapping] : [],
           ...language ? [language] : [],
           ...this.#darkMode ? [oneDark] : [],
           keymap.of([indentWithTab]),

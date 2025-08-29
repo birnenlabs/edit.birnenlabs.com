@@ -1,7 +1,8 @@
-import {openFilePicker, openDirectoryPicker} from './file-manipulations';
-import {generateTree} from './tree';
-import {EditorsManager} from './classes/editors-manager';
-import {Logger} from './logger';
+import { openFilePicker, openDirectoryPicker } from './file-manipulations';
+import { generateTree } from './tree';
+import { EditorsManager } from './classes/editors-manager';
+import { SettingsManager } from './classes/settings-manager';
+import { Logger } from './logger';
 
 const CONFIRM_OPEN_MSG = `The file is (most likely¹) already opened. Please confirm that you want to open it again.
 
@@ -32,7 +33,7 @@ export function openFileClick(): Promise<any> {
   */
 export function openDirClick(): Promise<any> {
   return openDirectoryPicker()
-      .then((result) => generateTree(result));
+    .then((result) => generateTree(result));
 }
 
 /**
@@ -45,7 +46,7 @@ export function saveFileClick(): Promise<any> {
 /**
  * Save file as.
   */
-export function saveFileAsClick() : Promise<any> {
+export function saveFileAsClick(): Promise<any> {
   return EditorsManager.saveAsActiveEditor();
 }
 
@@ -54,6 +55,10 @@ export function saveFileAsClick() : Promise<any> {
   */
 export function saveAllClick(): Promise<any> {
   return EditorsManager.saveAllEditors();
+}
+
+export function settingsClick(): Promise<any> {
+  return SettingsManager.settingsClicked();
 }
 
 /**
@@ -127,15 +132,15 @@ function openFiles(fileHandlers: FileSystemFileHandle[]): Promise<any> {
   if (fileHandlers.length == 1) {
     // When opening one file, let's detect if it wasn't opened already.
     return EditorsManager.getFileIndex(fileHandlers[0])
-        .then((fileIndex) => {
-          if (fileIndex === -1) {
-            return EditorsManager.createEditor(fileHandlers[0]);
-          } else {
-            return window.confirm(CONFIRM_OPEN_MSG) ?
-                   EditorsManager.createEditor(fileHandlers[0]) :
-                   EditorsManager.activateEditor(fileIndex);
-          }
-        });
+      .then((fileIndex) => {
+        if (fileIndex === -1) {
+          return EditorsManager.createEditor(fileHandlers[0]);
+        } else {
+          return window.confirm(CONFIRM_OPEN_MSG) ?
+            EditorsManager.createEditor(fileHandlers[0]) :
+            EditorsManager.activateEditor(fileIndex);
+        }
+      });
   } else {
     return Promise.all(fileHandlers.map((handler) => EditorsManager.createEditor(handler)));
   }

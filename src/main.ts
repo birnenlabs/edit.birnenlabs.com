@@ -2,7 +2,7 @@ import './style/main.css'
 import '@vscode/codicons/dist/codicon.css';
 import {Logger} from './ts/logger';
 import {supportsFileSystemAccess} from './ts/file-manipulations';
-import {newFileClick, openFileClick, openDirClick, saveFileClick, saveFileAsClick, saveAllClick, keyDown, darkModeChanged, launchQueueEvent, closeEvent} from './ts/html';
+import {newFileClick, openFileClick, openDirClick, saveFileClick, saveFileAsClick, saveAllClick, settingsClick, keyDown, darkModeChanged, launchQueueEvent, closeEvent} from './ts/html';
 import {EditorsManager} from './ts/classes/editors-manager';
 
 function onPageLoad(): Promise<any> {
@@ -25,6 +25,7 @@ function createMenu() {
   (document.getElementById('menuBtnSave') as HTMLButtonElement).onclick = saveFileClick;
   (document.getElementById('menuBtnSaveAs') as HTMLButtonElement).onclick = saveFileAsClick;
   (document.getElementById('menuBtnSaveAll') as HTMLButtonElement).onclick = saveAllClick;
+  (document.getElementById('menuBtnSettings') as HTMLButtonElement).onclick = settingsClick;
 }
 
 

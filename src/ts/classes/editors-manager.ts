@@ -1,6 +1,7 @@
 import {Editor} from './editor';
 import {Logger} from '../logger';
 import {languages} from '@codemirror/language-data';
+import { Settings } from './settings';
 
 /** EditorsManager class */
 export class EditorsManager {
@@ -102,7 +103,9 @@ export class EditorsManager {
       }
     }
 
-    const editor = new Editor(EditorsManager.#darkMode, fileHandler);
+    const settings = new Settings();
+
+    const editor = new Editor(settings.forceDarkMode || EditorsManager.#darkMode, fileHandler);
 
     EditorsManager.#editors.push(editor);
 
