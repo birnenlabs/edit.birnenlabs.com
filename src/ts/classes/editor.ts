@@ -1,7 +1,6 @@
 import {compareFiles, saveFile, saveFileAs} from '../file-manipulations';
-// codemirror is installed locally. In order to work on the webpage, the module
-// is mapped in the importmap.
-import {basicSetup, EditorView} from 'codemirror';
+import { basicSetup } from '@codemirror/basic-setup';
+import { EditorView } from '@codemirror/view';
 import {keymap} from '@codemirror/view';
 import {oneDark} from '@codemirror/theme-one-dark';
 import {languages} from '@codemirror/language-data';
