@@ -83,12 +83,6 @@ html {
     .codicon {
       font-size: 22px;
     }
-
-    @media (prefers-color-scheme: dark) {
-      .codicon {
-        filter: invert(1);
-      }
-    }
   }
 
   button:hover {
